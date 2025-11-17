@@ -1,0 +1,14 @@
+{
+  "name": "claude-pdf-printing",
+  "owner": {
+    "name": "Nico"
+  },
+  "description": "PDF printing and documentation export plugins for Claude Code",
+  "plugins": [
+    {
+      "name": "pdf-printing",
+      "source": "./plugins/pdf-printing",
+      "description": "Print markdown documentation to PDF with interactive selection"
+    }
+  ]
+}
