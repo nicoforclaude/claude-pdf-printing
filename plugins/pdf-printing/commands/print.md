@@ -110,7 +110,7 @@ if (!(Test-Path "$outputDir")) { mkdir "$outputDir" }
 cp "$sourceFile" "$PLUGIN_ROOT\temp\$filename"
 
 # Convert
-npx md-to-pdf "$PLUGIN_ROOT\temp\$filename" --output "$outputDir\$baseName.pdf"
+npx md-to-pdf "$PLUGIN_ROOT\temp\$filename" "$outputDir\$baseName.pdf"
 
 # Report
 if ($LASTEXITCODE -eq 0) {
