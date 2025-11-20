@@ -1,4 +1,4 @@
-# Print Demo - Installation & Setup
+# PDF Printing Plugin - Installation & Setup
 
 Installation steps for the pdf-printing plugin.
 
@@ -29,11 +29,11 @@ Directory layout:
 │   ├── package.json     # npm dependencies
 │   └── node_modules/    # installed packages (md-to-pdf)
 ├── config/
-│   └── settings.json
+│   └── settings.json    # plugin settings
 └── temp/                # temporary conversion files
-```
 
-**Note:** PDFs are output to `{cwd}/.printOutput/` (current working directory), not plugin root.
+{cwd}/.printOutput/      # PDF output (current working directory when command runs)
+```
 
 ## Installation Steps
 
@@ -110,7 +110,7 @@ $settings | Out-File -FilePath "$PLUGIN_ROOT\config\settings.json" -Encoding utf
 
 **Note:** Output directory is always `{cwd}/.printOutput/` where `{cwd}` is the current working directory when the command is run.
 
-### 8. Verify Installation
+### 7. Verify Installation
 
 Check md-to-pdf installation:
 
@@ -121,7 +121,7 @@ Test-Path "$PLUGIN_ROOT\exe\node_modules\.bin\md-to-pdf"
 
 Both should return `True`.
 
-### 9. Completion Report
+### 8. Completion Report
 
 ```
 ✓ Plugin setup complete!
@@ -181,4 +181,4 @@ If auto-install fails:
 3. Create `exe\package.json` with md-to-pdf dependency
 4. Run `npm install` in exe/ folder
 5. Create `config\settings.json` with structure above
-6. Test with: `/print_demo`
+6. Test with: `/pdf-printing:print`

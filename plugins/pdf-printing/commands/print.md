@@ -1,22 +1,21 @@
 ---
-description: "Print documents to PDF (demo version - simplified)"
+description: "Convert markdown documents to PDF"
 allowed-tools: Bash(mkdir:*), Bash(Test-Path:*), Bash(where.exe:*), Bash(npx:*), Bash(cp:*), Bash(rm:*), Bash(ls:*), Write, Read, Glob
 ---
 
-# Print Demo - Simple PDF Conversion
+# PDF Printing - Markdown to PDF Conversion
 
 Convert markdown files to PDF.
 
 ## Arguments
 
 - **No args**: Display plugin state
-- **Single file**: `/print_demo path/to/file.md`
+- **Single file**: `/pdf-printing:print path/to/file.md`
 
-## Plugin Root
+## Paths
 
-`CLAUDE_PLUGINS_ROOT\nicoforclaude\pdf-printing`
-
-Standard path: `${CLAUDE_MAIN_WORKSPACE_ROOT}\.localData\claude-plugins\nicoforclaude\pdf-printing`
+- **Plugin root**: `${CLAUDE_MAIN_WORKSPACE_ROOT}\.localData\claude-plugins\nicoforclaude\pdf-printing`
+- **Output directory**: `{cwd}/.printOutput/` (current working directory when command runs)
 
 ## Workflow
 
@@ -29,14 +28,7 @@ $PLUGIN_ROOT = "${CLAUDE_MAIN_WORKSPACE_ROOT}\.localData\claude-plugins\nicoforc
 Test-Path "$PLUGIN_ROOT\config\settings.json"
 ```
 
-**If settings.json missing:** Run installation (see `../docs/installation.md` for details).
-
-**Installation summary:**
-1. Create directories: `config/`, `temp/`, `output/`
-2. Create `config/settings.json`
-3. Verify npx available
-
-**If installed:** Proceed to Step 2.
+**If settings.json missing:** Run installation (see `../docs/installation.md`).
 
 ### Step 2: No Arguments - Display State
 
@@ -54,23 +46,24 @@ Report:
 PDF Printing Plugin - Status
 
 Root: ${CLAUDE_MAIN_WORKSPACE_ROOT}\.localData\claude-plugins\nicoforclaude\pdf-printing
+Output: {cwd}/.printOutput/
 
 Configuration:
 {
   "version": "1.0.0",
-  "outputDir": "...",
+  "exePath": "...",
   "tempDir": "..."
 }
 
-Output: {count} PDFs
+Recent PDFs: {count} files
   - file1.pdf (123 KB) - 2025-11-20 14:30
 
 Dependencies:
   ✓ npx available
 
 Usage:
-  /print_demo              → Show status
-  /print_demo file.md      → Convert to PDF
+  /pdf-printing:print              → Show status
+  /pdf-printing:print file.md      → Convert to PDF
 ```
 
 ### Step 3: Single File - Convert to PDF
@@ -86,8 +79,8 @@ if (!(Test-Path $args[0])) {
 
 # Extension check
 $ext = [System.IO.Path]::GetExtension($args[0])
-if ($ext -ne ".md" -and $ext -ne ".markdown") {
-    Write-Error "Only markdown files supported"
+if ($ext -ne ".md") {
+    Write-Error "Only .md files supported"
     exit 1
 }
 ```
@@ -108,21 +101,26 @@ Convert:
 $sourceFile = $args[0]
 $filename = [System.IO.Path]::GetFileName($sourceFile)
 $baseName = [System.IO.Path]::GetFileNameWithoutExtension($sourceFile)
+$outputDir = ".printOutput"
+
+# Create output directory
+if (!(Test-Path "$outputDir")) { mkdir "$outputDir" }
 
 # Copy to temp
 cp "$sourceFile" "$PLUGIN_ROOT\temp\$filename"
 
 # Convert
-npx md-to-pdf "$PLUGIN_ROOT\temp\$filename" --output "$PLUGIN_ROOT\output\$baseName.pdf"
+npx md-to-pdf "$PLUGIN_ROOT\temp\$filename" --output "$outputDir\$baseName.pdf"
 
 # Report
 if ($LASTEXITCODE -eq 0) {
-    $pdf = Get-Item "$PLUGIN_ROOT\output\$baseName.pdf"
+    $pdf = Get-Item "$outputDir\$baseName.pdf"
     $sizeKB = [math]::Round($pdf.Length / 1KB, 1)
+    $fullPath = (Resolve-Path "$outputDir\$baseName.pdf").Path
 
     Write-Output "✓ PDF generated successfully!"
     Write-Output ""
-    Write-Output "Output: $PLUGIN_ROOT\output\$baseName.pdf ($sizeKB KB)"
+    Write-Output "Output: $fullPath ($sizeKB KB)"
 } else {
     Write-Error "✗ Conversion failed"
 }
@@ -138,9 +136,7 @@ Converting: README.md
 
 ✓ PDF generated successfully!
 
-Output: C:\...\output\README.pdf (87.3 KB)
-
-Temp files cleaned up.
+Output: C:\...\{cwd}\.printOutput\README.pdf (87.3 KB)
 ```
 
 ## Error Handling
@@ -156,14 +152,14 @@ Temp files cleaned up.
 ## Usage
 
 ```bash
-/print_demo                # Status
-/print_demo README.md      # Convert file
-/print_demo docs/setup.md  # Convert with path
+/pdf-printing:print                # Status
+/pdf-printing:print README.md      # Convert file
+/pdf-printing:print docs/setup.md  # Convert with path
 ```
 
 ## Notes
 
-- Markdown only (.md, .markdown)
-- Output: `{PLUGIN_ROOT}\output\`
-- Temp auto-cleaned
+- Markdown only (.md files)
+- Output: `{cwd}/.printOutput/` (current working directory)
+- Temp files auto-cleaned
 - Physical printing NOT implemented
