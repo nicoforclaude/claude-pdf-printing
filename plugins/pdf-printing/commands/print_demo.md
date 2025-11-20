@@ -29,7 +29,7 @@ $PLUGIN_ROOT = "$env:CLAUDE_MAIN_WORKSPACE_ROOT\.localData\claude-plugins\nicofo
 Test-Path "$PLUGIN_ROOT\config\settings.json"
 ```
 
-**If settings.json missing:** Run installation (see `print_demo_install.md` for details).
+**If settings.json missing:** Run installation (see `../docs/installation.md` for details).
 
 **Installation summary:**
 1. Create directories: `config/`, `temp/`, `output/`
@@ -147,7 +147,7 @@ Temp files cleaned up.
 
 | Error | Action |
 |-------|--------|
-| Settings missing | Run installation (see print_demo_install.md) |
+| Settings missing | Run installation (see ../docs/installation.md) |
 | npx unavailable | Install Node.js |
 | File not found | Clear error, exit |
 | Non-.md file | Error message |
