@@ -7,7 +7,10 @@ param(
     [string]$Source,
 
     [Parameter(Mandatory=$true)]
-    [string]$Output
+    [string]$Output,
+
+    [Parameter(Mandatory=$false)]
+    [bool]$OpenInChrome = $true  # Default to true, will be customizable later
 )
 
 $ErrorActionPreference = "Stop"
@@ -44,6 +47,18 @@ try {
         # Verify move succeeded
         if (Test-Path $Output) {
             Write-Output $Output
+
+            # Open in Chrome if requested
+            if ($OpenInChrome) {
+                try {
+                    Start-Process chrome $Output
+                    Write-Output "Opened in Chrome: $Output"
+                } catch {
+                    Write-Warning "Could not open in Chrome: $_"
+                    # Continue anyway - PDF was still generated successfully
+                }
+            }
+
             exit 0
         } else {
             Write-Error "Failed to move PDF to output location"

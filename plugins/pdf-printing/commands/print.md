@@ -167,6 +167,7 @@ Converting: README.md
 ✓ PDF generated successfully!
 
 Output: C:\...\{cwd}\.printOutput\README.pdf (87.3 KB)
+Opened in Chrome: C:\...\{cwd}\.printOutput\README.pdf
 ```
 
 ## Error Handling
@@ -200,4 +201,5 @@ Output: C:\...\{cwd}\.printOutput\README.pdf (87.3 KB)
 - Markdown only (.md files)
 - Output: `{cwd}/.printOutput/` (current working directory)
 - Uses `scripts/convert.ps1` for conversion (in-place generation + move)
+- **Automatically opens generated PDFs in Chrome browser** (will be customizable in future)
 - Physical printing NOT implemented
