@@ -28,16 +28,36 @@ This ensures proper handling of:
 
 ## Workflow
 
-### Step 1: Check Installation
+### Step 1: Check Installation (FAIL FAST)
 
 ```powershell
 $PLUGIN_ROOT = "${CLAUDE_MAIN_WORKSPACE_ROOT}\.localData\claude-plugins\nicoforclaude\pdf-printing"
 
-# Check if installed
+# Check critical paths
 Test-Path "$PLUGIN_ROOT\config\settings.json"
+Test-Path "$PLUGIN_ROOT\scripts\convert.ps1"
 ```
 
-**If settings.json missing:** Run installation (see `../docs/installation.md`).
+**STOP CONDITIONS - If any check fails:**
+
+| Missing | Error Message | Action |
+|---------|---------------|--------|
+| `settings.json` | "Plugin not installed" | STOP, run installation |
+| `scripts/convert.ps1` | "Conversion script missing" | STOP, run installation |
+
+**Error output format:**
+```
+ERROR: PDF Printing plugin incomplete installation
+
+Missing: scripts/convert.ps1
+
+To fix: Run installation from plugin source
+  Source: nicoforclaude/claude-pdf-printing/plugins/pdf-printing/docs/installation.md
+
+STOPPING - Do not attempt workarounds.
+```
+
+**CRITICAL:** Do NOT attempt manual npx calls or workarounds. Fail cleanly and direct user to fix installation.
 
 ### Step 2: No Arguments - Display State
 
@@ -151,14 +171,21 @@ Output: C:\...\{cwd}\.printOutput\README.pdf (87.3 KB)
 
 ## Error Handling
 
-| Error | Action |
-|-------|--------|
-| Settings missing | Run installation (see ../docs/installation.md) |
-| npx unavailable | Install Node.js |
-| Script not found | Check plugin installation |
-| File not found | Clear error, exit |
-| Non-.md file | Error message |
-| Conversion fails | Report error with details |
+**FAIL FAST POLICY:** Stop immediately on installation issues. Do not attempt workarounds.
+
+| Error | Action | Workarounds? |
+|-------|--------|--------------|
+| `settings.json` missing | STOP, run installation | NO |
+| `scripts/convert.ps1` missing | STOP, run installation | NO |
+| npx unavailable | STOP, install Node.js | NO |
+| Source file not found | Clear error, exit | NO |
+| Non-.md file | Error message, exit | NO |
+| Conversion fails | Report error with details | NO |
+
+**Why no workarounds?**
+- Manual npx calls have different syntax/behavior
+- Workarounds mask installation problems
+- Better UX: clear error → fix → success
 
 ## Usage
 

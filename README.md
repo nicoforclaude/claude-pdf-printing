@@ -26,9 +26,15 @@ Or via URL (when published):
 Print markdown documentation to PDF with interactive selection.
 
 **Commands:**
-- `/pdf-printing:init` - Initialize PDF printing setup (one-time)
-- `/pdf-printing:print` - Print selected markdown files to PDF
+- `/pdf-printing:print` - Convert markdown files to PDF
 
-## Development Status
+**Usage:**
+```bash
+/pdf-printing:print           # Show status
+/pdf-printing:print file.md   # Convert to PDF
+```
 
-Currently in testing phase - basic structure only, implementation pending.
+## Requirements
+
+- Node.js with npx
+- First run requires installation (see `plugins/pdf-printing/docs/installation.md`)
