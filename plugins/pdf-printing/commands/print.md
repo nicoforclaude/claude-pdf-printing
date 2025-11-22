@@ -13,7 +13,7 @@ Convert markdown files to PDF.
 
 This ensures proper handling of:
 - Path quoting and backslashes
-- PowerShell special character escaping (`-not` vs `!`)
+- PowerShell special character escaping (use `-not` instead of exclamation mark)
 - Variable interpolation in inline commands
 
 ## Arguments
