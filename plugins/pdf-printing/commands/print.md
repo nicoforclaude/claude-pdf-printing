@@ -7,6 +7,15 @@ allowed-tools: Bash(mkdir:*), Bash(Test-Path:*), Bash(where.exe:*), Bash(npx:*),
 
 Convert markdown files to PDF.
 
+## Platform Setup
+
+**On Windows:** Activate `windows-shell:windows-shell` skill FIRST before executing any commands.
+
+This ensures proper handling of:
+- Path quoting and backslashes
+- PowerShell special character escaping (`-not` vs `!`)
+- Variable interpolation in inline commands
+
 ## Arguments
 
 - **No args**: Display plugin state
