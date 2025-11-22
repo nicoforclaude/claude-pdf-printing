@@ -1,6 +1,6 @@
 ---
 description: "Convert markdown documents to PDF"
-allowed-tools: Bash(mkdir:*), Bash(Test-Path:*), Bash(where.exe:*), Bash(npx:*), Bash(cp:*), Bash(rm:*), Bash(ls:*), Write, Read, Glob
+allowed-tools: Bash(mkdir:*), Bash(Test-Path:*), Bash(where.exe:*), Bash(npx:*), Bash(powershell:*), Bash(ls:*), Write, Read, Glob
 ---
 
 # PDF Printing - Markdown to PDF Conversion
@@ -99,34 +99,35 @@ Convert:
 
 ```powershell
 $sourceFile = $args[0]
-$filename = [System.IO.Path]::GetFileName($sourceFile)
 $baseName = [System.IO.Path]::GetFileNameWithoutExtension($sourceFile)
 $outputDir = ".printOutput"
+$outputPath = "$outputDir\$baseName.pdf"
+$script = "$PLUGIN_ROOT\scripts\convert.ps1"
+
+# Verify script exists
+if (!(Test-Path $script)) {
+    Write-Error "Conversion script not found: $script"
+    exit 1
+}
 
 # Create output directory
 if (!(Test-Path "$outputDir")) { mkdir "$outputDir" }
 
-# Copy to temp
-cp "$sourceFile" "$PLUGIN_ROOT\temp\$filename"
-
-# Convert
-npx md-to-pdf "$PLUGIN_ROOT\temp\$filename" "$outputDir\$baseName.pdf"
+# Convert using script (in-place generation + move)
+$result = powershell -ExecutionPolicy Bypass -File $script -Source $sourceFile -Output $outputPath 2>&1
 
 # Report
 if ($LASTEXITCODE -eq 0) {
-    $pdf = Get-Item "$outputDir\$baseName.pdf"
+    $pdf = Get-Item $outputPath
     $sizeKB = [math]::Round($pdf.Length / 1KB, 1)
-    $fullPath = (Resolve-Path "$outputDir\$baseName.pdf").Path
+    $fullPath = (Resolve-Path $outputPath).Path
 
-    Write-Output "✓ PDF generated successfully!"
+    Write-Output "PDF generated successfully!"
     Write-Output ""
     Write-Output "Output: $fullPath ($sizeKB KB)"
 } else {
-    Write-Error "✗ Conversion failed"
+    Write-Error "Conversion failed: $result"
 }
-
-# Cleanup
-rm "$PLUGIN_ROOT\temp\$filename"
 ```
 
 Output:
@@ -145,9 +146,10 @@ Output: C:\...\{cwd}\.printOutput\README.pdf (87.3 KB)
 |-------|--------|
 | Settings missing | Run installation (see ../docs/installation.md) |
 | npx unavailable | Install Node.js |
+| Script not found | Check plugin installation |
 | File not found | Clear error, exit |
 | Non-.md file | Error message |
-| Conversion fails | Report error, keep temp for debug |
+| Conversion fails | Report error with details |
 
 ## Usage
 
@@ -161,5 +163,5 @@ Output: C:\...\{cwd}\.printOutput\README.pdf (87.3 KB)
 
 - Markdown only (.md files)
 - Output: `{cwd}/.printOutput/` (current working directory)
-- Temp files auto-cleaned
+- Uses `scripts/convert.ps1` for conversion (in-place generation + move)
 - Physical printing NOT implemented
