@@ -129,8 +129,8 @@ Convert:
 ```powershell
 $sourceFile = $args[0]
 $baseName = [System.IO.Path]::GetFileNameWithoutExtension($sourceFile)
-$outputDir = ".printOutput"
-$outputPath = "$outputDir\$baseName.pdf"
+$outputDir = Join-Path $PWD ".printOutput"
+$outputPath = Join-Path $outputDir "$baseName.pdf"
 $script = "$PLUGIN_ROOT\scripts\convert.ps1"
 
 # Verify script exists
