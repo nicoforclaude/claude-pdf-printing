@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Skill(nico-dev:editing)"
-    ],
-    "deny": [],
-    "ask": []
-  }
-}
