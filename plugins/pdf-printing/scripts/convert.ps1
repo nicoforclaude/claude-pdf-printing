@@ -15,6 +15,87 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# --- Helper Functions ---
+
+function Get-TruncatedPath {
+    param(
+        [string]$FullPath,
+        [int]$MaxLength = 80
+    )
+
+    # Normalize to forward slashes
+    $normalizedPath = $FullPath.Replace('\', '/')
+
+    if ($normalizedPath.Length -le $MaxLength) {
+        return $normalizedPath
+    }
+
+    # Split into segments
+    $segments = $normalizedPath.Split('/')
+
+    # Start from the end, keep adding segments until we exceed MaxLength
+    $result = @()
+    $currentLength = 3  # Account for "..." prefix
+
+    for ($i = $segments.Length - 1; $i -ge 0; $i--) {
+        $segment = $segments[$i]
+        $segmentLength = $segment.Length + 1  # +1 for the slash
+
+        if ($currentLength + $segmentLength -le $MaxLength) {
+            $result = @($segment) + $result
+            $currentLength += $segmentLength
+        } else {
+            break
+        }
+    }
+
+    # If we couldn't fit any segments, just return filename
+    if ($result.Length -eq 0) {
+        return $segments[-1]
+    }
+
+    # If we kept all segments, return as-is
+    if ($result.Length -eq $segments.Length) {
+        return $normalizedPath
+    }
+
+    return ".../" + ($result -join '/')
+}
+
+function New-PdfConfig {
+    param(
+        [string]$DisplayPath,
+        [string]$TempDir
+    )
+
+    $configPath = Join-Path $TempDir "md-to-pdf-config-$([guid]::NewGuid().ToString('N').Substring(0,8)).js"
+
+    $configContent = @"
+module.exports = {
+  pdf_options: {
+    format: 'A4',
+    margin: { top: '25mm', bottom: '20mm', left: '15mm', right: '15mm' },
+    displayHeaderFooter: true,
+    headerTemplate: ``
+      <style>
+        section { width: 100%; margin: 0 15mm; font-family: system-ui, -apple-system, sans-serif; font-size: 9px; color: #666; }
+      </style>
+      <section><div>$DisplayPath</div></section>
+    ``,
+    footerTemplate: ``
+      <style>
+        section { width: 100%; margin: 0 15mm; font-family: system-ui, -apple-system, sans-serif; font-size: 9px; color: #666; text-align: center; }
+      </style>
+      <section>Page <span class="pageNumber"></span> of <span class="totalPages"></span></section>
+    ``
+  }
+};
+"@
+
+    $configContent | Out-File -FilePath $configPath -Encoding utf8 -NoNewline
+    return $configPath
+}
+
 # Validate source exists
 if (!(Test-Path $Source)) {
     Write-Error "Source file not found: $Source"
@@ -35,9 +116,17 @@ if ($outputDir -and !(Test-Path $outputDir)) {
     New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 }
 
+# Prepare header/footer config
+$displayPath = Get-TruncatedPath -FullPath $Source -MaxLength 80
+$tempDir = [System.IO.Path]::GetTempPath()
+$tempConfigPath = $null
+
 try {
-    # Convert (PDF appears next to source file)
-    $npxOutput = npx md-to-pdf $Source 2>&1
+    # Create temporary config file for header/footer
+    $tempConfigPath = New-PdfConfig -DisplayPath $displayPath -TempDir $tempDir
+
+    # Convert with config (PDF appears next to source file)
+    $npxOutput = npx md-to-pdf --config-file $tempConfigPath $Source 2>&1
 
     # Check if PDF was created
     if (Test-Path $tempPdf) {
@@ -46,13 +135,15 @@ try {
 
         # Verify move succeeded
         if (Test-Path $Output) {
-            Write-Output $Output
+            # Get absolute path for output
+            $absoluteOutput = (Resolve-Path $Output).Path
+            Write-Output $absoluteOutput
 
             # Open in Chrome if requested
             if ($OpenInChrome) {
                 try {
-                    Start-Process chrome $Output
-                    Write-Output "Opened in Chrome: $Output"
+                    Start-Process chrome $absoluteOutput
+                    Write-Output "Opened in Chrome: $absoluteOutput"
                 } catch {
                     Write-Warning "Could not open in Chrome: $_"
                     # Continue anyway - PDF was still generated successfully
@@ -75,4 +166,9 @@ try {
     }
     Write-Error "Conversion error: $_"
     exit 1
+} finally {
+    # Always cleanup temp config file
+    if ($tempConfigPath -and (Test-Path $tempConfigPath)) {
+        Remove-Item $tempConfigPath -Force -ErrorAction SilentlyContinue
+    }
 }
