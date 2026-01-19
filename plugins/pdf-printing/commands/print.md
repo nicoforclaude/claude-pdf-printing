@@ -1,6 +1,6 @@
 ---
 description: "Convert markdown documents to PDF (spawns agent)"
-allowed-tools: Task, Read, Glob
+allowed-tools: Task, Read, Glob, Bash
 ---
 
 # PDF Print Command (Agent Wrapper)
@@ -9,11 +9,12 @@ This command resolves file references and spawns an agent for conversion.
 
 ## Your Role
 
-You are the **resolver**. The agent is the **executor**.
+You are the **resolver**. The agent is the **executor**. You handle **post-processing**.
 
 1. **Resolve** the file reference to a concrete absolute path
 2. **Spawn** the `pdf-printing:print-agent` with that path
-3. **Report** the agent's result
+3. **Open PDF in Chrome** after agent completes successfully
+4. **Report** the result
 
 ## Arguments
 
@@ -46,6 +47,18 @@ Task(
   description: "Print file.md to PDF"
 )
 ```
+
+## Post-Processing: Open in Chrome
+
+After the agent returns successfully:
+1. **Extract PDF path** from agent's result (looks for path ending in `.pdf`)
+2. **Open in Chrome** using Bash:
+
+```powershell
+Start-Process chrome "C:\path\to\output.pdf"
+```
+
+**Why here, not in agent?** The agent runs as a subprocess without GUI access. Chrome must be opened from the main conversation context.
 
 ## Status Mode (No File Found)
 

@@ -60,7 +60,7 @@ $baseName = [System.IO.Path]::GetFileNameWithoutExtension($sourceFile)
 $outputDir = Join-Path $PWD ".printOutput"
 $outputPath = Join-Path $outputDir "$baseName.pdf"
 
-powershell -ExecutionPolicy Bypass -File "$PLUGIN_ROOT\scripts\convert.ps1" -Source $sourceFile -Output $outputPath
+powershell -ExecutionPolicy Bypass -File "$PLUGIN_ROOT\scripts\convert.ps1" -Source $sourceFile -Output $outputPath -OpenInChrome:$false
 ```
 
 ## Response
