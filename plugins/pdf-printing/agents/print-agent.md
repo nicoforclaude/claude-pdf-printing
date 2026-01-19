@@ -15,6 +15,15 @@ The caller provides a concrete file path:
 
 The path is already resolved - no context inference needed.
 
+## Platform Setup
+
+**On Windows:** Activate `windows-shell:windows-shell` skill FIRST before executing any commands.
+
+This ensures proper handling of:
+- Path quoting and backslashes
+- PowerShell special character escaping (use `-not` instead of `!`)
+- Variable interpolation in inline commands
+
 ## Workflow
 
 1. **Extract file path** from the request
