@@ -52,10 +52,10 @@ Task(
 
 After the agent returns successfully:
 1. **Extract PDF path** from agent's result (looks for path ending in `.pdf`)
-2. **Open in Chrome** using Bash:
+2. **Open in Chrome** using PowerShell via Bash:
 
-```powershell
-Start-Process chrome "C:\path\to\output.pdf"
+```bash
+powershell -Command "Start-Process chrome 'C:\path\to\output.pdf'"
 ```
 
 **Why here, not in agent?** The agent runs as a subprocess without GUI access. Chrome must be opened from the main conversation context.
