@@ -60,6 +60,7 @@ $baseName = [System.IO.Path]::GetFileNameWithoutExtension($sourceFile)
 $outputDir = Join-Path $PWD ".printOutput"
 $outputPath = Join-Path $outputDir "$baseName.pdf"
 
+# IMPORTANT: Always pass -OpenInChrome:$false - the wrapper handles Chrome opening
 powershell -ExecutionPolicy Bypass -File "$PLUGIN_ROOT\scripts\convert.ps1" -Source $sourceFile -Output $outputPath -OpenInChrome:$false
 ```
 
@@ -68,6 +69,8 @@ powershell -ExecutionPolicy Bypass -File "$PLUGIN_ROOT\scripts\convert.ps1" -Sou
 Report the result clearly:
 - Success: `PDF generated: C:\...\file.pdf`
 - Failure: Error message with details
+
+**IMPORTANT:** Do NOT open the PDF in Chrome or any browser. The wrapper command handles that.
 
 ## Errors
 
