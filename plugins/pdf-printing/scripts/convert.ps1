@@ -10,7 +10,7 @@ param(
     [string]$Output,
 
     [Parameter(Mandatory=$false)]
-    [bool]$OpenInChrome = $true  # Default to true, will be customizable later
+    [bool]$OpenInChrome = $false  # Default to false - wrapper handles Chrome opening
 )
 
 $ErrorActionPreference = "Stop"

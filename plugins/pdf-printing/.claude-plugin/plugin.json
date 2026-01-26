@@ -1,7 +1,7 @@
 {
   "name": "pdf-printing",
   "description": "Print markdown documentation to PDF with interactive selection",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "author": {
     "name": "Nico"
   }
