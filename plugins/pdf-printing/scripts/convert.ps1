@@ -126,7 +126,7 @@ try {
     $tempConfigPath = New-PdfConfig -DisplayPath $displayPath -TempDir $tempDir
 
     # Convert with config (PDF appears next to source file)
-    $npxOutput = npx md-to-pdf --config-file $tempConfigPath $Source 2>&1
+    $output = md-to-pdf --config-file $tempConfigPath $Source 2>&1
 
     # Check if PDF was created
     if (Test-Path $tempPdf) {
@@ -156,7 +156,7 @@ try {
             exit 1
         }
     } else {
-        Write-Error "Conversion failed - no PDF generated. npx output: $npxOutput"
+        Write-Error "Conversion failed - no PDF generated. Output: $output"
         exit 1
     }
 } catch {
